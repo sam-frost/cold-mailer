@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Submit Details</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f4f6f8;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+
+      form {
+        background: white;
+        padding: 24px;
+        border-radius: 8px;
+        width: 340px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+      }
+
+      h2 {
+        margin-bottom: 16px;
+        text-align: center;
+      }
+
+      label {
+        display: block;
+        margin-top: 12px;
+        font-weight: bold;
+      }
+
+      input,
+      select {
+        width: 100%;
+        padding: 8px;
+        margin-top: 6px;
+        border-radius: 4px;
+        border: 1px solid #ccc;
+      }
+
+      .add-email-btn {
+        margin-top: 10px;
+        background: #6c757d;
+        font-size: 14px;
+      }
+
+      button {
+        margin-top: 18px;
+        width: 100%;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        background: #007bff;
+        color: white;
+        font-size: 16px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background: #0056b3;
+      }
+
+      .message {
+        margin-top: 12px;
+        text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <form id="dataForm">
+      <h2>Submit Details</h2>
+
+      <label>Emails</label>
+      <div id="emailContainer">
+        <input type="email" class="email" required />
+      </div>
+
+      <button type="button" class="add-email-btn" id="addEmail">
+        + Add another email
+      </button>
+
+      <label for="company">Company Name</label>
+      <input type="text" id="company" required />
+
+      <label for="designation">Designation</label>
+      <select id="designation" required>
+        <option value="">Select designation</option>
+        <option value="SDE">SDE</option>
+        <option value="SDE-1">SDE-1</option>
+        <option value="Software Engineer">Software Engineer</option>
+        <option value="Associate Software Engineer">
+          Associate Software Engineer
+        </option>
+      </select>
+
+      <button type="submit">Submit</button>
+
+      <div class="message" id="message"></div>
+    </form>
+
+    <script>
+      const form = document.getElementById("dataForm");
+      const message = document.getElementById("message");
+      const emailContainer = document.getElementById("emailContainer");
+      const addEmailBtn = document.getElementById("addEmail");
+
+      addEmailBtn.addEventListener("click", () => {
+        const input = document.createElement("input");
+        input.type = "email";
+        input.className = "email";
+        input.required = true;
+        emailContainer.appendChild(input);
+      });
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const emails = Array.from(document.querySelectorAll(".email")).map(
+          (input) => input.value,
+        );
+
+        const data = {
+          emails,
+          companyName: document.getElementById("company").value,
+          position: document.getElementById("designation").value,
+        };
+
+        try {
+          const res = await fetch("/submit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          });
+
+          const result = await res.json();
+          message.textContent = result.message || "Submitted successfully!";
+          message.style.color = "green";
+
+          form.reset();
+          emailContainer.innerHTML = `
+          <input type="email" class="email" required />
+        `;
+        } catch (err) {
+          message.textContent = "Something went wrong!";
+          message.style.color = "red";
+        }
+      });
+    </script>
+  </body>
+</html>
